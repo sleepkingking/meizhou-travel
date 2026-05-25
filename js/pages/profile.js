@@ -51,43 +51,77 @@ function switchAuthTab(tab) {
 
 async function handleProfileLogin(e) {
   e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = '登录中...';
+
   let email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
   const errorEl = document.getElementById('auth-error');
+  errorEl.textContent = '';
 
   // 支持用户名登录：不含@自动补全
   if (!email.includes('@')) {
     email = email + '@admin.com';
   }
 
-  const result = await adminLogin(email, password);
-  if (result) {
-    currentUser = result.user;
-    showToast('登录成功');
-    renderProfile(document.getElementById('content'));
-  } else {
-    errorEl.textContent = '登录失败，请检查账号和密码';
+  try {
+    const result = await Promise.race([
+      adminLogin(email, password),
+      new Promise(resolve => setTimeout(() => resolve(null), 10000))
+    ]);
+
+    if (result) {
+      currentUser = result.user;
+      showToast('登录成功');
+      renderProfile(document.getElementById('content'));
+    } else {
+      errorEl.textContent = '登录失败，请检查账号和密码，或检查网络连接';
+    }
+  } catch (err) {
+    errorEl.textContent = '登录出错：' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '登 录';
   }
 }
 
 async function handleProfileRegister(e) {
   e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = '注册中...';
+
   const email = document.getElementById('reg-email').value;
   const password = document.getElementById('reg-password').value;
   const errorEl = document.getElementById('auth-error');
+  errorEl.textContent = '';
 
   if (password.length < 6) {
     errorEl.textContent = '密码至少6位';
+    btn.disabled = false;
+    btn.textContent = '注 册';
     return;
   }
 
-  const result = await userRegister(email, password);
-  if (result) {
-    currentUser = result.user;
-    showToast('注册成功');
-    renderProfile(document.getElementById('content'));
-  } else {
-    errorEl.textContent = '注册失败，请检查邮箱或稍后重试';
+  try {
+    const result = await Promise.race([
+      userRegister(email, password),
+      new Promise(resolve => setTimeout(() => resolve(null), 10000))
+    ]);
+
+    if (result) {
+      currentUser = result.user;
+      showToast('注册成功');
+      renderProfile(document.getElementById('content'));
+    } else {
+      errorEl.textContent = '注册失败，请检查邮箱或稍后重试';
+    }
+  } catch (err) {
+    errorEl.textContent = '注册出错：' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '注 册';
   }
 }
 
