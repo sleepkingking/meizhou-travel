@@ -8,8 +8,8 @@ const routes = {
   'tours': renderTours,
   'tour': renderTourDetail,
   'contact': renderContact,
+  'profile': renderProfile,
   'admin': renderAdminList,
-  'admin/login': renderAdminLogin,
   'admin/edit': renderAdminEdit,
 };
 
@@ -38,19 +38,24 @@ function route() {
   }
 
   const content = document.getElementById('content');
-  if (renderFn === renderHome || renderFn === renderTours || renderFn === renderContact) {
+
+  // 公开页面（带底部导航）
+  if (renderFn === renderHome || renderFn === renderTours || renderFn === renderContact || renderFn === renderProfile) {
     renderFn(content);
     renderNav(content);
-  } else if (renderFn === renderTourDetail) {
+  }
+  // 行程详情（不带导航，有返回按钮）
+  else if (renderFn === renderTourDetail) {
     renderFn(content, param);
-  } else if (renderFn === renderAdminList) {
-    if (!currentUser) { location.hash = '#/admin/login'; return; }
-    renderFn(content);
-  } else if (renderFn === renderAdminLogin) {
-    if (currentUser) { location.hash = '#/admin'; return; }
-    renderFn(content);
-  } else if (renderFn === renderAdminEdit) {
-    if (!currentUser) { location.hash = '#/admin/login'; return; }
+  }
+  // 管理页面（需管理员权限）
+  else if (renderFn === renderAdminList || renderFn === renderAdminEdit) {
+    if (!currentUser) { location.hash = '#/profile'; return; }
+    if (!isAdminUser()) {
+      showToast('仅管理员可访问');
+      location.hash = '#/profile';
+      return;
+    }
     renderFn(content, param);
   }
 }

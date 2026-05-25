@@ -8,6 +8,7 @@ function renderNav(container) {
     { hash: '', icon: '🏠', label: '首页' },
     { hash: 'tours', icon: '🧭', label: '行程' },
     { hash: 'contact', icon: '📞', label: '联系我们' },
+    { hash: 'profile', icon: '👤', label: '个人中心' },
   ];
 
   nav.innerHTML = items.map(item => {

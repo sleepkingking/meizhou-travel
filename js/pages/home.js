@@ -9,10 +9,6 @@ async function renderHome(container) {
       <span class="more" onclick="location.hash='#/tours'">查看更多 →</span>
     </div>
     <div id="featured-tours">${renderLoading()}</div>
-    <div style="text-align:center;padding:20px 0 80px;">
-      <span style="color:#ccc;font-size:0.75rem;cursor:pointer;"
-            onclick="location.hash='#/admin/login'">管理入口</span>
-    </div>
   `;
 
   // 双重保障：即使 getTours 卡死，10 秒后也强制显示结果

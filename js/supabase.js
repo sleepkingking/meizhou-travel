@@ -148,6 +148,18 @@ async function getAdminSession() {
   } catch (e) { return null; }
 }
 
+async function userRegister(email, password) {
+  try {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) { console.error('userRegister error:', error); return null; }
+    return data;
+  } catch (e) { console.error('userRegister failed:', e.message); return null; }
+}
+
+function isAdminUser() {
+  return currentUser && currentUser.email === 'admin@meizhoujiayuan.com';
+}
+
 // === 图片上传 ===
 
 async function uploadImage(file) {
