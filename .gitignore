@@ -5,3 +5,5 @@ frames_png/
 keyframes/
 thumbs/
 *.mp4
+
+.vercel
