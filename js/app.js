@@ -32,7 +32,10 @@ function route() {
     : [hash, null];
 
   const renderFn = routes[path];
-  if (!renderFn) { location.hash = '#/'; return; }
+  if (!renderFn || typeof renderFn !== 'function') {
+    document.getElementById('content').innerHTML = '<div class="empty"><div class="icon">⚠️</div><p>页面加载失败，请刷新重试</p></div>';
+    return;
+  }
 
   const content = document.getElementById('content');
   if (renderFn === renderHome || renderFn === renderTours || renderFn === renderContact) {

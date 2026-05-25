@@ -2,6 +2,33 @@
 const SUPABASE_URL = 'https://okrseebqgaqbspfjfmew.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_WYUOGccf5IiJqM512U_NAw_MrsdTkrA';
 
+// 安全检查：如果 SDK 未加载，用mock对象兜底，防止全页白屏
+if (!window.supabase) {
+  console.error('Supabase SDK 加载失败，使用离线模式');
+  window.supabase = {
+    createClient: function() {
+      return {
+        from: function() { return this; },
+        select: function() { return this; },
+        eq: function() { return this; },
+        order: function() { return this; },
+        single: function() { return Promise.resolve({ data: null, error: new Error('SDK not loaded') }); },
+        insert: function() { return this; },
+        update: function() { return this; },
+        delete: function() { return this; },
+        auth: {
+          signInWithPassword: function() { return Promise.resolve({ data: null, error: new Error('SDK not loaded') }); },
+          signOut: function() { return Promise.resolve(); },
+          getSession: function() { return Promise.resolve({ data: { session: null } }); }
+        },
+        storage: {
+          from: function() { return { upload: function() { return Promise.resolve({ data: null, error: new Error('SDK not loaded') }); }, getPublicUrl: function() { return { publicUrl: '' }; } }; }
+        }
+      };
+    }
+  };
+}
+
 // 自定义 fetch 带超时（8秒），防止网络不通时页面卡死
 const fetchWithTimeout = (url, options = {}) => {
   return Promise.race([
