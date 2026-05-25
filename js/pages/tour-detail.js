@@ -34,7 +34,7 @@ async function renderTourDetail(container, id) {
         ${tour.category ? '<span class="cat-tag small">' + tour.category + '</span>' : ''}
       </div>
       <div class="price">¥${tour.price_adult || 0}<sub>/人起</sub>${tour.price_child ? '<sub style="margin-left:8px;">儿童 ¥' + tour.price_child + '/人</sub>' : ''}</div>
-      ${tour.meeting_point ? '<div class="detail-meeting">📍 ${escapeHtml(tour.meeting_point)} ${tour.meeting_time ? '· 🕗 ' + escapeHtml(tour.meeting_time) : ''}</div>' : ''}
+      ${tour.meeting_point ? '<div class="detail-meeting">' + escapeHtml(tour.meeting_point) + (tour.meeting_time ? ' / ' + escapeHtml(tour.meeting_time) : '') + '</div>' : ''}
     </div>
     <div class="tabs">
       <button class="tab active" onclick="switchTab('itinerary')">行程介绍</button>
