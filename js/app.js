@@ -1,6 +1,7 @@
 // === 简易 Hash 路由 ===
 
 let currentUser = null;
+let appReady = false;
 
 const routes = {
   '': renderHome,
@@ -12,10 +13,16 @@ const routes = {
   'admin/edit': renderAdminEdit,
 };
 
-async function initApp() {
-  const session = await getAdminSession();
-  currentUser = session?.user || null;
+function initApp() {
+  // 先渲染页面，不等待 Supabase 连接
   route();
+  appReady = true;
+  // 后台静默检查登录状态（失败也不影响页面）
+  getAdminSession().then(session => {
+    currentUser = session?.user || null;
+  }).catch(() => {
+    currentUser = null;
+  });
 }
 
 function route() {
