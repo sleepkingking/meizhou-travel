@@ -20,11 +20,22 @@ function initApp() {
 function route() {
   var hash = location.hash.replace('#/', '') || '';
   var parts = hash.split('/');
-  var path = parts[0];
-  var param = parts.length > 1 ? parts.slice(1).join('/') : null;
-
-  var renderFn = routes[path];
   var content = document.getElementById('content');
+
+  // 从最长路径开始匹配，支持 admin/edit/new 这种嵌套路由
+  var path = '';
+  var param = null;
+  var renderFn = null;
+
+  for (var i = parts.length; i >= 1; i--) {
+    var tryPath = parts.slice(0, i).join('/');
+    if (routes[tryPath]) {
+      path = tryPath;
+      renderFn = routes[tryPath];
+      param = i < parts.length ? parts.slice(i).join('/') : null;
+      break;
+    }
+  }
 
   if (!renderFn) {
     content.innerHTML = '<div class="empty"><div class="icon">🏠</div><p>页面不存在</p></div>';
@@ -32,7 +43,7 @@ function route() {
   }
 
   // 管理页面：检查管理员权限
-  if (path === 'admin' || path === 'admin/edit') {
+  if (path.indexOf('admin') === 0) {
     if (!currentUser) {
       showToast('请先登录');
       location.hash = '#/profile';
@@ -49,9 +60,7 @@ function route() {
   if (path === '' || path === 'tours' || path === 'contact' || path === 'profile') {
     renderFn(content);
     renderNav(content);
-  } else if (path === 'tour') {
-    renderFn(content, param);
-  } else if (path === 'admin' || path === 'admin/edit') {
+  } else {
     renderFn(content, param);
   }
 }
