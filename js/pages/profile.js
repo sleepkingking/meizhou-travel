@@ -102,6 +102,7 @@ async function handleProfileLogin() {
       // 同步session到Supabase SDK，后续管理操作才能通过认证
       if (data.access_token) {
         window._authToken = data.access_token;
+        localStorage.setItem('auth_token', data.access_token);
         try {
           await supabase.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
         } catch(e) {}

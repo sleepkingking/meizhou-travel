@@ -224,9 +224,13 @@ function isAdminUser() {
 
 async function uploadImage(file) {
   try {
-    var fileName = Date.now() + '_' + (file.name || 'image.jpg');
-    var token = window._authToken || '';
+    var token = window._authToken || localStorage.getItem('auth_token') || '';
+    if (!token) {
+      console.error('uploadImage: no auth token');
+      return null;
+    }
 
+    var fileName = Date.now() + '_' + (file.name || 'image.jpg');
     var resp = await fetchWithTimeout(
       SUPABASE_URL + '/storage/v1/object/tour-images/covers/' + fileName,
       {
@@ -234,7 +238,8 @@ async function uploadImage(file) {
         headers: {
           'apikey': SUPABASE_ANON_KEY,
           'Authorization': 'Bearer ' + token,
-          'Content-Type': file.type || 'image/jpeg'
+          'Content-Type': file.type || 'image/jpeg',
+          'x-upsert': 'true'
         },
         body: file
       }
@@ -242,11 +247,10 @@ async function uploadImage(file) {
 
     if (!resp.ok) {
       var err = await resp.json().catch(function() { return {}; });
-      console.error('uploadImage error:', err);
+      console.error('uploadImage error:', resp.status, JSON.stringify(err));
       return null;
     }
 
-    var data = await resp.json();
     return SUPABASE_URL + '/storage/v1/object/public/tour-images/covers/' + fileName;
   } catch (e) { console.error('uploadImage failed:', e.message); return null; }
 }

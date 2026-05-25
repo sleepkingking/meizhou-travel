@@ -11,6 +11,10 @@ var routes = {
 };
 
 function initApp() {
+  // 恢复之前登录的 token
+  var savedToken = localStorage.getItem('auth_token');
+  if (savedToken) window._authToken = savedToken;
+
   route();
   getAdminSession().then(function(session) {
     if (session) currentUser = session.user;

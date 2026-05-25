@@ -15,13 +15,15 @@ async function handleImageSelect(event) {
   if (file.size > 5 * 1024 * 1024) { showToast('图片大小不能超过5MB'); return; }
 
   var display = document.getElementById('upload-display');
-  display.innerHTML = '<p>上传中...</p>';
+  if (!display) return;
+
+  display.innerHTML = '<p>上传中... (' + Math.round(file.size/1024) + 'KB)</p>';
 
   var url = await uploadImage(file);
   if (url) {
     window._coverUrl = url;
-    display.innerHTML = '<img src="' + url + '" alt="封面图" style="max-width:100%;max-height:200px;border-radius:8px;"><p style="font-size:0.75rem;margin-top:8px;color:#4caf50;">上传成功，点击更换</p>';
+    display.innerHTML = '<img src="' + url + '" alt="封面图" style="max-width:100%;max-height:200px;border-radius:8px;"><p style="font-size:0.75rem;margin-top:8px;color:#4caf50;">上传成功</p>';
   } else {
-    display.innerHTML = '<p style="color:#e8553d;">📷 上传失败，请重试</p>';
+    display.innerHTML = '<p style="color:#e8553d;">📷 上传失败</p><p style="font-size:0.6875rem;color:#999;">请检查网络或重新登录</p>';
   }
 }
