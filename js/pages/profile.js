@@ -219,7 +219,7 @@ function renderUserInfo(container) {
     </div>
     <div class="profile-menu">
       ${isAdmin ? `
-        <div class="profile-menu-item" onclick="location.hash='#/admin'">
+        <div class="profile-menu-item" onclick="window.location.href='#/admin'; setTimeout(function(){ route(); }, 100);">
           <div class="menu-icon">⚙️</div>
           <div class="menu-text">
             <div class="menu-title">管理中心</div>
