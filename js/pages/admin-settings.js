@@ -10,6 +10,7 @@ async function loadSettingsForm() {
   var qrcode = s.wechat_qrcode || '';
   var address = s.address || '';
   window._settingsQrcode = qrcode;
+  window._bannerImage = s.banner_image || '';
 
   document.getElementById('settings-form').innerHTML = `
     <div style="padding:0 16px 24px;">
@@ -64,6 +65,31 @@ async function loadSettingsForm() {
         </div>
       </div>
 
+      <!-- 首页Banner -->
+      <div class="settings-card">
+        <div class="settings-card-icon">🖼</div>
+        <div class="settings-card-body">
+          <div class="settings-card-title">首页 Banner 图片</div>
+          <p style="font-size:0.75rem;color:#999;margin:2px 0 8px;">建议尺寸：750×320 像素</p>
+          <div onclick="document.getElementById('banner-file').click()" style="display:inline-block;cursor:pointer;border:2px dashed #ddd;border-radius:12px;padding:8px;text-align:center;min-width:200px;">
+            <input type="file" id="banner-file" accept="image/*" style="display:none" onchange="handleBannerUpload(event)">
+            <div id="banner-display">
+              ${s.banner_image
+                ? '<img src="' + s.banner_image + '" style="width:100%;max-width:280px;border-radius:8px;object-fit:cover;"><p style="font-size:0.6875rem;color:#4caf50;margin-top:4px;">✓ 已上传，点击更换</p>'
+                : '<div style="width:100%;max-width:280px;height:80px;background:#f5f5f5;border-radius:8px;margin:0 auto;display:flex;align-items:center;justify-content:center;color:#ccc;">点击上传Banner图</div>'
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-card">
+        <div class="settings-card-icon">✏️</div>
+        <div class="settings-card-body">
+          <div class="settings-card-title">Banner 文字</div>
+          <textarea id="set-banner-text" placeholder="支持换行，如：探索梅州\n发现自然之美" style="width:100%;padding:10px;border:1px solid #e0e0e0;border-radius:8px;font-size:0.9375rem;min-height:50px;margin-top:8px;box-sizing:border-box;resize:vertical;">${(s.banner_text || '').replace(/\\n/g, '\n')}</textarea>
+        </div>
+      </div>
+
       <!-- 保存 -->
       <button class="save-btn" onclick="handleSaveSettings()" style="margin-top:12px;">💾 保存联系方式</button>
 
@@ -88,21 +114,40 @@ async function handleQrcodeUpload(event) {
   }
 }
 
+async function handleBannerUpload(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var display = document.getElementById('banner-display');
+  display.innerHTML = '<p style="padding:20px;color:#999;">上传中...</p>';
+  var url = await uploadImage(file);
+  if (url) {
+    window._bannerImage = url;
+    display.innerHTML = '<img src="' + url + '" style="width:100%;max-width:280px;border-radius:8px;object-fit:cover;"><p style="font-size:0.6875rem;color:#4caf50;margin-top:4px;">✓ 已上传</p>';
+  } else {
+    display.innerHTML = '<p style="color:#e8553d;padding:20px;">上传失败</p>';
+  }
+}
+
 async function handleSaveSettings() {
   var btn = document.querySelector('.save-btn');
   var phone = document.getElementById('set-phone').value.trim();
   var wechatId = document.getElementById('set-wechat').value.trim();
   var address = document.getElementById('set-address').value.trim();
+  var bannerText = document.getElementById('set-banner-text').value.trim();
 
   btn.disabled = true;
   btn.textContent = '保存中...';
 
-  var result = await adminUpdateSettings({
+  var updateData = {
     phone: phone,
     wechat_id: wechatId,
     wechat_qrcode: window._settingsQrcode || '',
-    address: address
-  });
+    address: address,
+    banner_text: bannerText
+  };
+  if (window._bannerImage) updateData.banner_image = window._bannerImage;
+
+  var result = await adminUpdateSettings(updateData);
 
   btn.disabled = false;
   btn.textContent = '💾 保存联系方式';

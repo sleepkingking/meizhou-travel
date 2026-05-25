@@ -60,15 +60,14 @@ try {
 
 // === 公开接口 ===
 
-async function getTours() {
+async function getTours(search, category) {
   try {
-    const { data, error } = await supabase
-      .from('tours')
-      .select('*')
-      .eq('is_published', true)
-      .order('created_at', { ascending: false });
-    if (error) { console.error('getTours error:', error); return []; }
-    return data;
+    var query = supabase.from('tours').select('*').eq('is_published', true).order('created_at', { ascending: false });
+    if (search) query = query.or('name.ilike.%' + search + '%,destination.ilike.%' + search + '%');
+    if (category) query = query.eq('category', category);
+    var result = await query;
+    if (result.error) { console.error('getTours error:', result.error); return []; }
+    return result.data;
   } catch (e) { console.error('getTours failed:', e.message); return []; }
 }
 

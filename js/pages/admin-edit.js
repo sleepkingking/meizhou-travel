@@ -59,6 +59,16 @@ async function renderAdminEdit(container, id) {
         <input type="text" id="tour-phone" value="${escapeHtml(tour?.contact_phone || '')}">
       </div>
       <div class="form-group">
+        <label>行程分类</label>
+        <select id="tour-category" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:0.875rem;">
+          <option value="">无分类</option>
+          <option value="徒步" ${tour?.category === '徒步' ? 'selected' : ''}>🥾 徒步</option>
+          <option value="亲子" ${tour?.category === '亲子' ? 'selected' : ''}>👨‍👩‍👧 亲子</option>
+          <option value="文化" ${tour?.category === '文化' ? 'selected' : ''}>🏛 文化</option>
+          <option value="休闲" ${tour?.category === '休闲' ? 'selected' : ''}>🌿 休闲</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label>封面图片</label>
         ${createImageUploader(window._coverUrl)}
       </div>
@@ -116,6 +126,7 @@ async function handleSaveTour(e, id) {
     meeting_point: document.getElementById('tour-meeting-point').value,
     meeting_time: document.getElementById('tour-meeting-time').value,
     contact_phone: document.getElementById('tour-phone').value,
+    category: document.getElementById('tour-category').value,
     cover_image: window._coverUrl,
     itinerary: document.getElementById('editor-itinerary').innerHTML,
     cost_detail: document.getElementById('editor-cost_detail').innerHTML,
