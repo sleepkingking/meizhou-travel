@@ -22,23 +22,23 @@ function renderAuthForm(container, defaultTab) {
 
 function renderLoginForm() {
   return `
-    <form onsubmit="handleProfileLogin(event)">
-      <input type="text" id="login-email" placeholder="请输入账号或邮箱" required>
-      <input type="password" id="login-password" placeholder="请输入密码" required>
+    <div class="login-form">
+      <input type="text" id="login-email" placeholder="请输入账号或邮箱" required autocomplete="username">
+      <input type="password" id="login-password" placeholder="请输入密码" required autocomplete="current-password">
       <div id="auth-error" class="error"></div>
-      <button type="submit">登 录</button>
-    </form>
+      <button type="button" class="login-btn" onclick="handleProfileLogin()">登 录</button>
+    </div>
   `;
 }
 
 function renderRegisterForm() {
   return `
-    <form onsubmit="handleProfileRegister(event)">
-      <input type="email" id="reg-email" placeholder="请输入邮箱" required>
-      <input type="password" id="reg-password" placeholder="请设置密码（至少6位）" required minlength="6">
+    <div class="login-form">
+      <input type="email" id="reg-email" placeholder="请输入邮箱" required autocomplete="email">
+      <input type="password" id="reg-password" placeholder="请设置密码（至少6位）" required minlength="6" autocomplete="new-password">
       <div id="auth-error" class="error"></div>
-      <button type="submit">注 册</button>
-    </form>
+      <button type="button" class="login-btn" onclick="handleProfileRegister()">注 册</button>
+    </div>
   `;
 }
 
@@ -49,9 +49,8 @@ function switchAuthTab(tab) {
   });
 }
 
-async function handleProfileLogin(e) {
-  e.preventDefault();
-  const btn = e.target.querySelector('button[type="submit"]');
+async function handleProfileLogin() {
+  const btn = document.querySelector('.login-btn');
   btn.disabled = true;
   btn.textContent = '登录中...';
 
@@ -59,6 +58,13 @@ async function handleProfileLogin(e) {
   const password = document.getElementById('login-password').value;
   const errorEl = document.getElementById('auth-error');
   errorEl.textContent = '';
+
+  if (!email || !password) {
+    errorEl.textContent = '请输入账号和密码';
+    btn.disabled = false;
+    btn.textContent = '登 录';
+    return;
+  }
 
   // 支持用户名登录：不含@自动补全
   if (!email.includes('@')) {
@@ -68,7 +74,7 @@ async function handleProfileLogin(e) {
   try {
     const result = await Promise.race([
       adminLogin(email, password),
-      new Promise(resolve => setTimeout(() => resolve(null), 10000))
+      new Promise(resolve => setTimeout(() => resolve(null), 12000))
     ]);
 
     if (result) {
@@ -86,9 +92,8 @@ async function handleProfileLogin(e) {
   }
 }
 
-async function handleProfileRegister(e) {
-  e.preventDefault();
-  const btn = e.target.querySelector('button[type="submit"]');
+async function handleProfileRegister() {
+  const btn = document.querySelector('.login-btn');
   btn.disabled = true;
   btn.textContent = '注册中...';
 
@@ -96,6 +101,13 @@ async function handleProfileRegister(e) {
   const password = document.getElementById('reg-password').value;
   const errorEl = document.getElementById('auth-error');
   errorEl.textContent = '';
+
+  if (!email || !password) {
+    errorEl.textContent = '请输入邮箱和密码';
+    btn.disabled = false;
+    btn.textContent = '注 册';
+    return;
+  }
 
   if (password.length < 6) {
     errorEl.textContent = '密码至少6位';
@@ -107,7 +119,7 @@ async function handleProfileRegister(e) {
   try {
     const result = await Promise.race([
       userRegister(email, password),
-      new Promise(resolve => setTimeout(() => resolve(null), 10000))
+      new Promise(resolve => setTimeout(() => resolve(null), 12000))
     ]);
 
     if (result) {

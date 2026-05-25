@@ -131,9 +131,12 @@ async function adminTogglePublish(id, currentStatus) {
 
 async function adminLogin(email, password) {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { console.error('adminLogin error:', error); return null; }
-    return data;
+    const result = await Promise.race([
+      supabase.auth.signInWithPassword({ email, password }),
+      new Promise((resolve) => setTimeout(() => resolve({ data: null, error: { message: '请求超时，请检查网络' } }), 12000))
+    ]);
+    if (result.error) { console.error('adminLogin error:', result.error); return null; }
+    return result.data;
   } catch (e) { console.error('adminLogin failed:', e.message); return null; }
 }
 
