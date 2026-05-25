@@ -23,7 +23,7 @@ function renderAuthForm(container, defaultTab) {
 function renderLoginForm() {
   return `
     <form onsubmit="handleProfileLogin(event)">
-      <input type="email" id="login-email" placeholder="请输入邮箱" required>
+      <input type="text" id="login-email" placeholder="请输入账号或邮箱" required>
       <input type="password" id="login-password" placeholder="请输入密码" required>
       <div id="auth-error" class="error"></div>
       <button type="submit">登 录</button>
@@ -51,18 +51,22 @@ function switchAuthTab(tab) {
 
 async function handleProfileLogin(e) {
   e.preventDefault();
-  const email = document.getElementById('login-email').value;
+  let email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
   const errorEl = document.getElementById('auth-error');
+
+  // 支持用户名登录：不含@自动补全
+  if (!email.includes('@')) {
+    email = email + '@admin.com';
+  }
 
   const result = await adminLogin(email, password);
   if (result) {
     currentUser = result.user;
     showToast('登录成功');
-    // 重新渲染个人中心
     renderProfile(document.getElementById('content'));
   } else {
-    errorEl.textContent = '登录失败，请检查邮箱和密码';
+    errorEl.textContent = '登录失败，请检查账号和密码';
   }
 }
 

@@ -157,7 +157,7 @@ async function userRegister(email, password) {
 }
 
 function isAdminUser() {
-  return currentUser && currentUser.email === 'admin@meizhoujiayuan.com';
+  return currentUser && currentUser.email === 'jiayuanhuwai@admin.com';
 }
 
 // === 图片上传 ===
