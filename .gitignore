@@ -1,0 +1,7 @@
+.claude/logs/
+.superpowers/
+frames/
+frames_png/
+keyframes/
+thumbs/
+*.mp4
