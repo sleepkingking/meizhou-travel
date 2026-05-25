@@ -21,6 +21,7 @@ if (!window.supabase) {
           signOut: function() { return Promise.resolve(); },
           getSession: function() { return Promise.resolve({ data: { session: null } }); }
         },
+          setSession: function() { return Promise.resolve(); },
         storage: {
           from: function() { return { upload: function() { return Promise.resolve({ data: null, error: new Error('SDK not loaded') }); }, getPublicUrl: function() { return { publicUrl: '' }; } }; }
         }
