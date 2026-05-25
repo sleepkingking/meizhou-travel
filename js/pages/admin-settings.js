@@ -12,32 +12,61 @@ async function loadSettingsForm() {
   window._settingsQrcode = qrcode;
 
   document.getElementById('settings-form').innerHTML = `
-    <div style="padding:16px;">
-      <div class="form-group">
-        <label>联系电话</label>
-        <input type="text" id="set-phone" value="${escapeHtml(phone)}" placeholder="如：138XXXX8888">
+    <div style="padding:0 16px 24px;">
+
+      <!-- 提示卡片 -->
+      <div style="background:#f0f8ff;border-radius:10px;padding:12px 16px;margin:12px 0 16px;font-size:0.8125rem;color:#1a73e8;">
+        💡 修改后将<b>实时更新</b>到"联系我们"页面，客户刷新即可看到
       </div>
-      <div class="form-group">
-        <label>微信号</label>
-        <input type="text" id="set-wechat" value="${escapeHtml(wechatId)}" placeholder="如：meizhoujiayuan">
+
+      <!-- 电话 -->
+      <div class="settings-card">
+        <div class="settings-card-icon">📞</div>
+        <div class="settings-card-body">
+          <div class="settings-card-title">联系电话</div>
+          <input type="text" id="set-phone" value="${escapeHtml(phone)}" placeholder="输入电话号码" style="width:100%;padding:10px;border:1px solid #e0e0e0;border-radius:8px;font-size:0.9375rem;margin-top:8px;box-sizing:border-box;">
+        </div>
       </div>
-      <div class="form-group">
-        <label>微信二维码</label>
-        <div class="image-upload" onclick="document.getElementById('qrcode-file').click()">
-          <input type="file" id="qrcode-file" accept="image/*" style="display:none" onchange="handleQrcodeUpload(event)">
-          <div id="qrcode-display">
-            ${qrcode
-              ? '<img src="' + qrcode + '" style="max-width:160px;max-height:160px;border-radius:8px;"><p style="font-size:0.75rem;margin-top:8px;">点击更换二维码</p>'
-              : '📷 点击上传微信二维码<p style="font-size:0.75rem;margin-top:4px;">支持 JPG/PNG/WebP</p>'
-            }
+
+      <!-- 微信 -->
+      <div class="settings-card">
+        <div class="settings-card-icon">💬</div>
+        <div class="settings-card-body">
+          <div class="settings-card-title">微信号</div>
+          <input type="text" id="set-wechat" value="${escapeHtml(wechatId)}" placeholder="输入微信号" style="width:100%;padding:10px;border:1px solid #e0e0e0;border-radius:8px;font-size:0.9375rem;margin-top:8px;box-sizing:border-box;">
+        </div>
+      </div>
+
+      <!-- 二维码 -->
+      <div class="settings-card">
+        <div class="settings-card-icon">📱</div>
+        <div class="settings-card-body">
+          <div class="settings-card-title">微信二维码</div>
+          <p style="font-size:0.75rem;color:#999;margin:2px 0 8px;">建议上传正方形图片</p>
+          <div onclick="document.getElementById('qrcode-file').click()" style="display:inline-block;cursor:pointer;border:2px dashed #ddd;border-radius:12px;padding:16px;text-align:center;min-width:120px;transition:border-color 0.2s;">
+            <input type="file" id="qrcode-file" accept="image/*" style="display:none" onchange="handleQrcodeUpload(event)">
+            <div id="qrcode-display">
+              ${qrcode
+                ? '<img src="' + qrcode + '" style="width:120px;height:120px;border-radius:8px;object-fit:cover;"><p style="font-size:0.6875rem;color:#4caf50;margin-top:4px;">✓ 已上传，点击更换</p>'
+                : '<div style="width:120px;height:120px;background:#f5f5f5;border-radius:8px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#ccc;">+</div><p style="font-size:0.75rem;color:#999;margin-top:4px;">点击上传</p>'
+              }
+            </div>
           </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>地址</label>
-        <textarea id="set-address" placeholder="如：梅州市梅江区XXX路">${escapeHtml(address)}</textarea>
+
+      <!-- 地址 -->
+      <div class="settings-card">
+        <div class="settings-card-icon">📍</div>
+        <div class="settings-card-body">
+          <div class="settings-card-title">公司地址</div>
+          <textarea id="set-address" placeholder="输入详细地址" style="width:100%;padding:10px;border:1px solid #e0e0e0;border-radius:8px;font-size:0.9375rem;min-height:60px;margin-top:8px;box-sizing:border-box;resize:vertical;">${escapeHtml(address)}</textarea>
+        </div>
       </div>
-      <button class="save-btn" onclick="handleSaveSettings()">保存联系方式</button>
+
+      <!-- 保存 -->
+      <button class="save-btn" onclick="handleSaveSettings()" style="margin-top:12px;">💾 保存联系方式</button>
+
     </div>
   `;
 }
@@ -48,21 +77,25 @@ async function handleQrcodeUpload(event) {
   if (file.size > 3 * 1024 * 1024) { showToast('图片大小不能超过3MB'); return; }
 
   var display = document.getElementById('qrcode-display');
-  display.innerHTML = '<p>上传中...</p>';
+  display.innerHTML = '<div style="width:120px;height:120px;margin:0 auto;display:flex;align-items:center;justify-content:center;"><p style="color:#999;">上传中...</p></div>';
 
   var url = await uploadImage(file);
   if (url) {
     window._settingsQrcode = url;
-    display.innerHTML = '<img src="' + url + '" style="max-width:160px;max-height:160px;border-radius:8px;"><p style="font-size:0.75rem;margin-top:8px;color:#4caf50;">上传成功</p>';
+    display.innerHTML = '<img src="' + url + '" style="width:120px;height:120px;border-radius:8px;object-fit:cover;"><p style="font-size:0.6875rem;color:#4caf50;margin-top:4px;">✓ 已上传，点击更换</p>';
   } else {
-    display.innerHTML = '<p style="color:#e8553d;">上传失败，请重试</p>';
+    display.innerHTML = '<div style="width:120px;height:120px;background:#fff0f0;border-radius:8px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#e8553d;">上传失败</div><p style="font-size:0.6875rem;color:#e8553d;margin-top:4px;">请重试</p>';
   }
 }
 
 async function handleSaveSettings() {
+  var btn = document.querySelector('.save-btn');
   var phone = document.getElementById('set-phone').value.trim();
   var wechatId = document.getElementById('set-wechat').value.trim();
   var address = document.getElementById('set-address').value.trim();
+
+  btn.disabled = true;
+  btn.textContent = '保存中...';
 
   var result = await adminUpdateSettings({
     phone: phone,
@@ -70,6 +103,9 @@ async function handleSaveSettings() {
     wechat_qrcode: window._settingsQrcode || '',
     address: address
   });
+
+  btn.disabled = false;
+  btn.textContent = '💾 保存联系方式';
 
   if (result) {
     showToast('联系方式已更新');
