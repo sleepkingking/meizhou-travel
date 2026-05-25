@@ -11,6 +11,11 @@
   <div id="app">
     <main id="content"><div style="text-align:center;padding:40px;color:#999;">页面加载中...</div></main>
   </div>
+  <script>
+    window.onerror = function(msg, url, line) {
+      document.getElementById('content').innerHTML = '<div class="empty"><div class="icon">❌</div><p>JS错误</p><p style="font-size:12px;color:#e8553d;">' + msg + '</p><p style="font-size:10px;color:#999;">' + (url||'').split('/').pop() + ':' + line + '</p></div>';
+    };
+  </script>
 
   <!-- 基础库 -->
   <script src="js/supabase.js"></script>
