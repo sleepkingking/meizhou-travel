@@ -60,7 +60,7 @@ async function renderAdminEdit(container, id) {
       </div>
       <div class="form-group">
         <label>封面图片</label>
-        ${createImageUploader(window._coverUrl, 'setCoverUrl')}
+        ${createImageUploader(window._coverUrl)}
       </div>
       <div class="form-group">
         <label>行程介绍</label>
