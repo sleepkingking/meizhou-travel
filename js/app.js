@@ -26,37 +26,41 @@ function initApp() {
 }
 
 function route() {
-  const hash = location.hash.replace('#/', '');
-  const [path, param] = hash.split('/').length > 1
-    ? [hash.split('/')[0], hash.split('/').slice(1).join('/')]
-    : [hash, null];
+  var hash = location.hash.replace('#/', '') || '';
+  var parts = hash.split('/');
+  var path = parts[0];
+  var param = parts.length > 1 ? parts.slice(1).join('/') : null;
 
-  const renderFn = routes[path];
+  console.log('route:', path, 'currentUser:', !!currentUser, 'isAdmin:', isAdminUser());
+
+  var renderFn = routes[path];
   if (!renderFn || typeof renderFn !== 'function') {
-    document.getElementById('content').innerHTML = '<div class="empty"><div class="icon">⚠️</div><p>页面加载失败，请刷新重试</p></div>';
+    document.getElementById('content').innerHTML = '<div class="empty"><div class="icon">⚠️</div><p>页面加载失败: ' + path + '</p></div>';
     return;
   }
 
-  const content = document.getElementById('content');
+  var content = document.getElementById('content');
 
-  // 公开页面（带底部导航）
   if (renderFn === renderHome || renderFn === renderTours || renderFn === renderContact || renderFn === renderProfile) {
     renderFn(content);
     renderNav(content);
-  }
-  // 行程详情（不带导航，有返回按钮）
-  else if (renderFn === renderTourDetail) {
+  } else if (renderFn === renderTourDetail) {
     renderFn(content, param);
-  }
-  // 管理页面（需管理员权限）
-  else if (renderFn === renderAdminList || renderFn === renderAdminEdit) {
-    if (!currentUser) { location.hash = '#/profile'; return; }
+  } else if (renderFn === renderAdminList || renderFn === renderAdminEdit) {
+    console.log('admin check - currentUser:', currentUser, 'isAdmin:', isAdminUser());
+    if (!currentUser) {
+      showToast('请先登录');
+      location.hash = '#/profile';
+      return;
+    }
     if (!isAdminUser()) {
-      showToast('仅管理员可访问');
+      showToast('仅管理员可访问 (email: ' + (currentUser ? currentUser.email : 'none') + ')');
       location.hash = '#/profile';
       return;
     }
     renderFn(content, param);
+  } else {
+    renderFn(content);
   }
 }
 
