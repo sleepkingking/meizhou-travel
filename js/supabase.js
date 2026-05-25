@@ -131,12 +131,31 @@ async function adminTogglePublish(id, currentStatus) {
 
 async function adminLogin(email, password) {
   try {
-    const result = await Promise.race([
-      supabase.auth.signInWithPassword({ email, password }),
-      new Promise((resolve) => setTimeout(() => resolve({ data: null, error: { message: '请求超时，请检查网络' } }), 12000))
-    ]);
-    if (result.error) { console.error('adminLogin error:', result.error); return null; }
-    return result.data;
+    const resp = await fetchWithTimeout(
+      SUPABASE_URL + '/auth/v1/token?grant_type=password',
+      {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      }
+    );
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      console.error('adminLogin error:', err);
+      return null;
+    }
+    const data = await resp.json();
+    // 同时设置 Supabase SDK 的 session，让后续 SDK 调用能通过认证
+    if (data.access_token && data.refresh_token) {
+      await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token
+      }).catch(() => {});
+    }
+    return { user: data.user, session: data };
   } catch (e) { console.error('adminLogin failed:', e.message); return null; }
 }
 
@@ -153,9 +172,30 @@ async function getAdminSession() {
 
 async function userRegister(email, password) {
   try {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) { console.error('userRegister error:', error); return null; }
-    return data;
+    const resp = await fetchWithTimeout(
+      SUPABASE_URL + '/auth/v1/signup',
+      {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      }
+    );
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      console.error('userRegister error:', err);
+      return null;
+    }
+    const data = await resp.json();
+    if (data.access_token && data.refresh_token) {
+      await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token
+      }).catch(() => {});
+    }
+    return { user: data.user, session: data };
   } catch (e) { console.error('userRegister failed:', e.message); return null; }
 }
 
