@@ -4,9 +4,10 @@ const SUPABASE_ANON_KEY = 'sb_publishable_WYUOGccf5IiJqM512U_NAw_MrsdTkrA';
 
 // 自定义 fetch 带超时（8秒），防止网络不通时页面卡死
 const fetchWithTimeout = (url, options = {}) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
-  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timeoutId));
+  return Promise.race([
+    fetch(url, options),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('FETCH_TIMEOUT')), 8000))
+  ]);
 };
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {

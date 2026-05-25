@@ -15,8 +15,19 @@ async function renderHome(container) {
     </div>
   `;
 
-  const tours = await getTours();
+  // 双重保障：即使 getTours 卡死，10 秒后也强制显示结果
+  let tours;
+  try {
+    tours = await Promise.race([
+      getTours(),
+      new Promise(resolve => setTimeout(() => resolve([]), 10000))
+    ]);
+  } catch (e) {
+    tours = [];
+  }
+
   const featuredContainer = document.getElementById('featured-tours');
+  if (!featuredContainer) return;
   if (tours.length === 0) {
     featuredContainer.innerHTML = `<div class="empty"><div class="icon">🧳</div><p>暂无行程，敬请期待</p></div>`;
   } else {

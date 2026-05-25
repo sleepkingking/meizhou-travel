@@ -4,8 +4,15 @@ async function renderTours(container) {
     <div id="tours-list">${renderLoading()}</div>
   `;
 
-  const tours = await getTours();
+  let tours;
+  try {
+    tours = await Promise.race([
+      getTours(),
+      new Promise(resolve => setTimeout(() => resolve([]), 10000))
+    ]);
+  } catch (e) { tours = []; }
   const listContainer = document.getElementById('tours-list');
+  if (!listContainer) return;
   if (tours.length === 0) {
     listContainer.innerHTML = `<div class="empty"><div class="icon">🧳</div><p>暂无行程</p></div>`;
   } else {

@@ -17,8 +17,15 @@ async function renderAdminList(container) {
     </div>
   `;
 
-  const tours = await adminGetAllTours();
+  let tours;
+  try {
+    tours = await Promise.race([
+      adminGetAllTours(),
+      new Promise(resolve => setTimeout(() => resolve([]), 10000))
+    ]);
+  } catch (e) { tours = []; }
   const listContainer = document.getElementById('admin-tours-list');
+  if (!listContainer) return;
   if (tours.length === 0) {
     listContainer.innerHTML = `<div class="empty"><div class="icon">📋</div><p>暂无行程，点击上方"新增"添加</p></div>`;
   } else {

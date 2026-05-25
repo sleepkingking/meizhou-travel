@@ -3,7 +3,14 @@ async function renderTourDetail(container, id) {
 
   container.innerHTML = renderLoading();
 
-  const tour = await getTour(id);
+  let tour;
+  try {
+    tour = await Promise.race([
+      getTour(id),
+      new Promise(resolve => setTimeout(() => resolve(null), 10000))
+    ]);
+  } catch (e) { tour = null; }
+
   if (!tour) { container.innerHTML = '<div class="empty"><p>行程不存在或已下架</p></div>'; return; }
 
   const coverStyle = tour.cover_image
