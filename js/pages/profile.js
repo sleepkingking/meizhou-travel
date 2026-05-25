@@ -101,9 +101,10 @@ async function handleProfileLogin() {
       currentUser = data.user;
       // 同步session到Supabase SDK，后续管理操作才能通过认证
       if (data.access_token) {
+        window._authToken = data.access_token;
         try {
           await supabase.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
-        } catch(e) { console.log('setSession note:', e.message); }
+        } catch(e) {}
       }
       showToast('登录成功');
       renderProfile(document.getElementById('content'));
@@ -150,6 +151,7 @@ async function handleProfileRegister() {
       var data = await resp.json();
       // 自动登录
       if (data.access_token) {
+        window._authToken = data.access_token;
         currentUser = data.user;
         try {
           await supabase.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
@@ -252,6 +254,7 @@ function renderUserInfo(container) {
 async function handleProfileLogout() {
   await adminLogout();
   currentUser = null;
+  window._authToken = null;
   showToast('已退出');
   renderProfile(document.getElementById('content'));
   renderNav();

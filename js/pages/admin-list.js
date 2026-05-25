@@ -36,6 +36,7 @@ async function renderAdminList(container) {
 async function handleLogout() {
   await adminLogout();
   currentUser = null;
+  window._authToken = null;
   location.hash = '#/';
   showToast('已退出登录');
 }

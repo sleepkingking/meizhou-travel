@@ -224,14 +224,29 @@ function isAdminUser() {
 
 async function uploadImage(file) {
   try {
-    const fileName = `${Date.now()}_${file.name}`;
-    const { data, error } = await supabase.storage
-      .from('tour-images')
-      .upload(`covers/${fileName}`, file);
-    if (error) { console.error('uploadImage error:', error); return null; }
-    const { data: urlData } = supabase.storage
-      .from('tour-images')
-      .getPublicUrl(`covers/${fileName}`);
-    return urlData.publicUrl;
+    var fileName = Date.now() + '_' + (file.name || 'image.jpg');
+    var token = window._authToken || '';
+
+    var resp = await fetchWithTimeout(
+      SUPABASE_URL + '/storage/v1/object/tour-images/covers/' + fileName,
+      {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': file.type || 'image/jpeg'
+        },
+        body: file
+      }
+    );
+
+    if (!resp.ok) {
+      var err = await resp.json().catch(function() { return {}; });
+      console.error('uploadImage error:', err);
+      return null;
+    }
+
+    var data = await resp.json();
+    return SUPABASE_URL + '/storage/v1/object/public/tour-images/covers/' + fileName;
   } catch (e) { console.error('uploadImage failed:', e.message); return null; }
 }
