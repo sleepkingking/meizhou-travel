@@ -14,7 +14,7 @@ function renderAuthForm(container, defaultTab) {
       <button class="tab ${activeTab === 'login' ? 'active' : ''}" onclick="switchAuthTab('login')">登录</button>
       <button class="tab ${activeTab === 'register' ? 'active' : ''}" onclick="switchAuthTab('register')">注册</button>
     </div>
-    <div id="auth-form" class="login-form">
+    <div id="auth-form">
       ${activeTab === 'login' ? renderLoginForm() : renderRegisterForm()}
     </div>
   `;
@@ -22,22 +22,23 @@ function renderAuthForm(container, defaultTab) {
 
 function renderLoginForm() {
   return `
-    <div class="login-form">
-      <input type="text" id="login-email" placeholder="请输入账号或邮箱" required autocomplete="username">
-      <input type="password" id="login-password" placeholder="请输入密码" required autocomplete="current-password">
-      <div id="auth-error" class="error"></div>
-      <button type="button" class="login-btn" onclick="handleProfileLogin()">登 录</button>
+    <div style="padding:24px;text-align:center;">
+      <input type="text" id="login-email" placeholder="请输入账号或邮箱" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:0.875rem;margin-bottom:12px;box-sizing:border-box;">
+      <input type="password" id="login-password" placeholder="请输入密码" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:0.875rem;margin-bottom:12px;box-sizing:border-box;">
+      <div id="auth-error" style="color:#e8553d;font-size:0.8125rem;min-height:20px;margin-bottom:8px;"></div>
+      <button id="login-btn" onclick="handleProfileLogin()" style="width:100%;padding:12px;background:#1a73e8;color:#fff;border:none;border-radius:24px;font-size:1rem;font-weight:600;cursor:pointer;">登 录</button>
+      <div id="login-debug" style="font-size:0.6875rem;color:#999;margin-top:12px;"></div>
     </div>
   `;
 }
 
 function renderRegisterForm() {
   return `
-    <div class="login-form">
-      <input type="email" id="reg-email" placeholder="请输入邮箱" required autocomplete="email">
-      <input type="password" id="reg-password" placeholder="请设置密码（至少6位）" required minlength="6" autocomplete="new-password">
-      <div id="auth-error" class="error"></div>
-      <button type="button" class="login-btn" onclick="handleProfileRegister()">注 册</button>
+    <div style="padding:24px;text-align:center;">
+      <input type="email" id="reg-email" placeholder="请输入邮箱" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:0.875rem;margin-bottom:12px;box-sizing:border-box;">
+      <input type="password" id="reg-password" placeholder="请设置密码（至少6位）" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:0.875rem;margin-bottom:12px;box-sizing:border-box;">
+      <div id="auth-error" style="color:#e8553d;font-size:0.8125rem;min-height:20px;margin-bottom:8px;"></div>
+      <button id="reg-btn" onclick="handleProfileRegister()" style="width:100%;padding:12px;background:#1a73e8;color:#fff;border:none;border-radius:24px;font-size:1rem;font-weight:600;cursor:pointer;">注 册</button>
     </div>
   `;
 }
@@ -50,14 +51,17 @@ function switchAuthTab(tab) {
 }
 
 async function handleProfileLogin() {
-  const btn = document.querySelector('.login-btn');
+  var btn = document.getElementById('login-btn');
+  var debug = document.getElementById('login-debug');
+  var errorEl = document.getElementById('auth-error');
+
   btn.disabled = true;
   btn.textContent = '登录中...';
-
-  let email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  const errorEl = document.getElementById('auth-error');
   errorEl.textContent = '';
+  debug.textContent = '';
+
+  var email = document.getElementById('login-email').value.trim();
+  var password = document.getElementById('login-password').value;
 
   if (!email || !password) {
     errorEl.textContent = '请输入账号和密码';
@@ -66,41 +70,53 @@ async function handleProfileLogin() {
     return;
   }
 
-  // 支持用户名登录：不含@自动补全
-  if (!email.includes('@')) {
+  if (email.indexOf('@') === -1) {
     email = email + '@admin.com';
+    debug.textContent = '使用账号: ' + email;
   }
 
   try {
-    const result = await Promise.race([
-      adminLogin(email, password),
-      new Promise(resolve => setTimeout(() => resolve(null), 12000))
-    ]);
+    debug.textContent = '正在连接服务器...';
 
-    if (result) {
-      currentUser = result.user;
+    var resp = await fetch('https://okrseebqgaqbspfjfmew.supabase.co/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: {
+        'apikey': 'sb_publishable_WYUOGccf5IiJqM512U_NAw_MrsdTkrA',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email: email, password: password })
+    });
+
+    debug.textContent = '服务器响应: ' + resp.status;
+
+    if (resp.ok) {
+      var data = await resp.json();
+      currentUser = data.user;
       showToast('登录成功');
       renderProfile(document.getElementById('content'));
     } else {
-      errorEl.textContent = '登录失败，请检查账号和密码，或检查网络连接';
+      var err = await resp.json().catch(function() { return {}; });
+      errorEl.textContent = err.error_description || err.msg || '登录失败 (HTTP ' + resp.status + ')';
     }
-  } catch (err) {
-    errorEl.textContent = '登录出错：' + err.message;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '登 录';
+  } catch (e) {
+    debug.textContent = '错误: ' + e.message;
+    errorEl.textContent = '网络连接失败，请检查网络';
   }
+
+  btn.disabled = false;
+  btn.textContent = '登 录';
 }
 
 async function handleProfileRegister() {
-  const btn = document.querySelector('.login-btn');
+  var btn = document.getElementById('reg-btn');
+  var errorEl = document.getElementById('auth-error');
+
   btn.disabled = true;
   btn.textContent = '注册中...';
-
-  const email = document.getElementById('reg-email').value;
-  const password = document.getElementById('reg-password').value;
-  const errorEl = document.getElementById('auth-error');
   errorEl.textContent = '';
+
+  var email = document.getElementById('reg-email').value.trim();
+  var password = document.getElementById('reg-password').value;
 
   if (!email || !password) {
     errorEl.textContent = '请输入邮箱和密码';
@@ -117,41 +133,43 @@ async function handleProfileRegister() {
   }
 
   try {
-    const result = await Promise.race([
-      userRegister(email, password),
-      new Promise(resolve => setTimeout(() => resolve(null), 12000))
-    ]);
+    var resp = await fetch('https://okrseebqgaqbspfjfmew.supabase.co/auth/v1/signup', {
+      method: 'POST',
+      headers: {
+        'apikey': 'sb_publishable_WYUOGccf5IiJqM512U_NAw_MrsdTkrA',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email: email, password: password })
+    });
 
-    if (result) {
-      currentUser = result.user;
+    if (resp.ok) {
+      var data = await resp.json();
+      currentUser = data.user;
       showToast('注册成功');
       renderProfile(document.getElementById('content'));
     } else {
-      errorEl.textContent = '注册失败，请检查邮箱或稍后重试';
+      var err = await resp.json().catch(function() { return {}; });
+      errorEl.textContent = err.msg || '注册失败';
     }
-  } catch (err) {
-    errorEl.textContent = '注册出错：' + err.message;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '注 册';
+  } catch (e) {
+    errorEl.textContent = '网络连接失败，请检查网络';
   }
+
+  btn.disabled = false;
+  btn.textContent = '注 册';
 }
 
 function renderUserInfo(container) {
-  const isAdmin = currentUser && currentUser.email === 'jiayuanhuwai@admin.com';
-  const displayName = isAdmin ? '嘉园户外' : (currentUser.email ? currentUser.email.split('@')[0] : '用户');
+  var isAdmin = currentUser && currentUser.email === 'jiayuanhuwai@admin.com';
+  var displayName = isAdmin ? '嘉园户外' : (currentUser.email ? currentUser.email.split('@')[0] : '用户');
 
   container.innerHTML = `
     <div class="page-header">个人中心</div>
-
-    <!-- 头像区 -->
     <div class="profile-header">
       <div class="profile-avatar">${displayName.charAt(0).toUpperCase()}</div>
       <div class="profile-name">${escapeHtml(displayName)}</div>
       <div class="profile-role">${isAdmin ? '管理员' : '旅行爱好者'}</div>
     </div>
-
-    <!-- 菜单列表 -->
     <div class="profile-menu">
       ${isAdmin ? `
         <div class="profile-menu-item" onclick="location.hash='#/admin'">
@@ -180,8 +198,6 @@ function renderUserInfo(container) {
         <div class="menu-arrow">›</div>
       </div>
     </div>
-
-    <!-- 退出 -->
     <div class="profile-logout" onclick="handleProfileLogout()">退出登录</div>
   `;
 }
