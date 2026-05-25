@@ -190,3 +190,35 @@ h3 { font-size: 1rem; font-weight: 600; }
 /* === Empty State === */
 .empty { text-align: center; padding: 60px 20px; color: #999; }
 .empty .icon { font-size: 3rem; margin-bottom: 12px; }
+
+/* === Profile Page === */
+.profile-header {
+  text-align: center; padding: 32px 16px 24px;
+  background: linear-gradient(180deg, #e8f5e9 0%, #fff 100%);
+}
+.profile-avatar {
+  width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 12px;
+  background: linear-gradient(135deg, #2d5a27, #4a8f3f); color: #fff;
+  font-size: 1.75rem; font-weight: 700; display: flex;
+  align-items: center; justify-content: center;
+}
+.profile-name { font-size: 1.125rem; font-weight: 700; margin-bottom: 4px; }
+.profile-role { font-size: 0.75rem; color: #4a8f3f; background: #e8f5e9; display: inline-block; padding: 2px 12px; border-radius: 10px; }
+
+.profile-menu { margin: 12px 16px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+.profile-menu-item {
+  display: flex; align-items: center; padding: 16px; cursor: pointer;
+  border-bottom: 1px solid #f5f5f5; gap: 12px;
+}
+.profile-menu-item:last-child { border-bottom: none; }
+.profile-menu-item .menu-icon { font-size: 1.25rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #f5f5f5; border-radius: 10px; flex-shrink: 0; }
+.profile-menu-item .menu-text { flex: 1; }
+.profile-menu-item .menu-title { font-size: 0.9375rem; font-weight: 600; }
+.profile-menu-item .menu-desc { font-size: 0.75rem; color: #999; margin-top: 2px; }
+.profile-menu-item .menu-arrow { font-size: 1.25rem; color: #ccc; }
+
+.profile-logout {
+  margin: 24px 16px; text-align: center; padding: 12px;
+  background: #fff; border-radius: 12px; color: #e8553d;
+  font-size: 0.9375rem; cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}

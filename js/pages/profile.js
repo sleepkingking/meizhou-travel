@@ -92,31 +92,51 @@ async function handleProfileRegister(e) {
 }
 
 function renderUserInfo(container) {
-  const isAdmin = currentUser && currentUser.email === 'admin@meizhoujiayuan.com';
+  const isAdmin = currentUser && currentUser.email === 'jiayuanhuwai@admin.com';
+  const displayName = isAdmin ? '嘉园户外' : (currentUser.email ? currentUser.email.split('@')[0] : '用户');
 
   container.innerHTML = `
     <div class="page-header">个人中心</div>
-    <div style="text-align:center;padding:24px 16px;">
-      <div style="font-size:3rem;margin-bottom:12px;">👤</div>
-      <div style="font-size:1rem;font-weight:600;">${escapeHtml(currentUser.email || '')}</div>
-      <div style="font-size:0.8125rem;color:#888;margin-top:4px;">${isAdmin ? '管理员' : '普通用户'}</div>
+
+    <!-- 头像区 -->
+    <div class="profile-header">
+      <div class="profile-avatar">${displayName.charAt(0).toUpperCase()}</div>
+      <div class="profile-name">${escapeHtml(displayName)}</div>
+      <div class="profile-role">${isAdmin ? '管理员' : '旅行爱好者'}</div>
     </div>
 
-    ${isAdmin ? `
-      <div style="margin:0 16px 12px;">
-        <div class="contact-card" style="cursor:pointer;" onclick="location.hash='#/admin'">
-          <div class="icon">⚙️</div>
-          <p style="font-weight:600;">管理中心</p>
-          <p style="font-size:0.75rem;color:#888;">管理行程、上下架商品</p>
+    <!-- 菜单列表 -->
+    <div class="profile-menu">
+      ${isAdmin ? `
+        <div class="profile-menu-item" onclick="location.hash='#/admin'">
+          <div class="menu-icon">⚙️</div>
+          <div class="menu-text">
+            <div class="menu-title">管理中心</div>
+            <div class="menu-desc">管理行程、上下架商品</div>
+          </div>
+          <div class="menu-arrow">›</div>
         </div>
+      ` : ''}
+      <div class="profile-menu-item" onclick="location.hash='#/tours'">
+        <div class="menu-icon">🧭</div>
+        <div class="menu-text">
+          <div class="menu-title">浏览行程</div>
+          <div class="menu-desc">发现更多精彩旅行</div>
+        </div>
+        <div class="menu-arrow">›</div>
       </div>
-    ` : ''}
-
-    <div style="padding:0 16px 24px;">
-      <button style="width:100%;padding:12px;background:#f5f5f5;border:none;border-radius:24px;
-        font-size:0.875rem;color:#e8553d;cursor:pointer;"
-        onclick="handleProfileLogout()">退出登录</button>
+      <div class="profile-menu-item" onclick="location.hash='#/contact'">
+        <div class="menu-icon">📞</div>
+        <div class="menu-text">
+          <div class="menu-title">联系我们</div>
+          <div class="menu-desc">咨询路线与报名</div>
+        </div>
+        <div class="menu-arrow">›</div>
+      </div>
     </div>
+
+    <!-- 退出 -->
+    <div class="profile-logout" onclick="handleProfileLogout()">退出登录</div>
   `;
 }
 
