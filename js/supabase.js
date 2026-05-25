@@ -1,7 +1,7 @@
 // Supabase 客户端初始化
 // 替换为你的 Supabase 项目 URL 和 anon key
-const SUPABASE_URL = 'https://your-project-id.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key-here';
+const SUPABASE_URL = 'https://okrseebqgaqbspfjfmew.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_WYUOGccf5IiJqM512U_NAw_MrsdTkrA';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
