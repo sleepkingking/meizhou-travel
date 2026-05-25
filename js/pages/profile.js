@@ -230,6 +230,14 @@ function renderUserInfo(container) {
           </div>
           <div class="menu-arrow">›</div>
         </div>
+        <div class="profile-menu-item" onclick="window.location.href='#/admin/settings'; setTimeout(function(){ route(); }, 100);">
+          <div class="menu-icon">📝</div>
+          <div class="menu-text">
+            <div class="menu-title">联系方式设置</div>
+            <div class="menu-desc">修改电话、微信、地址</div>
+          </div>
+          <div class="menu-arrow">›</div>
+        </div>
       ` : ''}
       <div class="profile-menu-item" onclick="location.hash='#/tours'">
         <div class="menu-icon">🧭</div>

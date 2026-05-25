@@ -7,7 +7,8 @@ var routes = {
   'contact': renderContact,
   'profile': renderProfile,
   'admin': renderAdminList,
-  'admin/edit': renderAdminEdit
+  'admin/edit': renderAdminEdit,
+  'admin/settings': renderAdminSettings
 };
 
 function initApp() {

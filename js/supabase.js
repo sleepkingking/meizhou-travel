@@ -254,3 +254,35 @@ async function uploadImage(file) {
     return SUPABASE_URL + '/storage/v1/object/public/tour-images/covers/' + fileName;
   } catch (e) { console.error('uploadImage failed:', e.message); return null; }
 }
+
+// === 联系方式设置 ===
+
+async function getSettings() {
+  try {
+    var resp = await fetchWithTimeout(SUPABASE_URL + '/rest/v1/settings?id=eq.1&select=*', {
+      headers: { 'apikey': SUPABASE_ANON_KEY }
+    });
+    if (!resp.ok) return { phone: '', wechat_id: '', wechat_qrcode: '', address: '' };
+    var data = await resp.json();
+    return data[0] || { phone: '', wechat_id: '', wechat_qrcode: '', address: '' };
+  } catch (e) { return { phone: '', wechat_id: '', wechat_qrcode: '', address: '' }; }
+}
+
+async function adminUpdateSettings(settings) {
+  try {
+    var token = window._authToken || localStorage.getItem('auth_token') || '';
+    var resp = await fetchWithTimeout(SUPABASE_URL + '/rest/v1/settings?id=eq.1', {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(settings)
+    });
+    if (!resp.ok) { console.error('adminUpdateSettings error:', resp.status); return null; }
+    var data = await resp.json();
+    return data[0];
+  } catch (e) { console.error('adminUpdateSettings failed:', e.message); return null; }
+}
