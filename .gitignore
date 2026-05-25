@@ -7,3 +7,6 @@ thumbs/
 *.mp4
 
 .vercel
+
+# Local Netlify folder
+.netlify
