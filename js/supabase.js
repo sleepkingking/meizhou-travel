@@ -19,9 +19,9 @@ if (!window.supabase) {
         auth: {
           signInWithPassword: function() { return Promise.resolve({ data: null, error: new Error('SDK not loaded') }); },
           signOut: function() { return Promise.resolve(); },
-          getSession: function() { return Promise.resolve({ data: { session: null } }); }
+          getSession: function() { return Promise.resolve({ data: { session: null } }); },
+          setSession: function() { return Promise.resolve(); }
         },
-          setSession: function() { return Promise.resolve(); },
         storage: {
           from: function() { return { upload: function() { return Promise.resolve({ data: null, error: new Error('SDK not loaded') }); }, getPublicUrl: function() { return { publicUrl: '' }; } }; }
         }
@@ -38,9 +38,25 @@ const fetchWithTimeout = (url, options = {}) => {
   ]);
 };
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  global: { fetch: fetchWithTimeout }
-});
+var supabase;
+try {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { fetch: fetchWithTimeout }
+  });
+} catch(e) {
+  console.error('Supabase init error:', e.message);
+  // 兜底：创建一个 mock client
+  supabase = {
+    from: function() { return { select: function() { return { eq: function() { return { order: function() { return { single: function() { return Promise.resolve({ data: null, error: new Error('init failed') }); } }; } }; } }; } }; },
+    auth: {
+      signInWithPassword: function() { return Promise.resolve({ data: null, error: new Error('init failed') }); },
+      signOut: function() { return Promise.resolve(); },
+      getSession: function() { return Promise.resolve({ data: { session: null } }); },
+      setSession: function() { return Promise.resolve(); }
+    },
+    storage: { from: function() { return { upload: function() { return Promise.resolve({ data: null, error: new Error('init failed') }); }, getPublicUrl: function() { return { publicUrl: '' }; } }; } }
+  };
+}
 
 // === 公开接口 ===
 
