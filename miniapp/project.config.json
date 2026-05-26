@@ -1,0 +1,10 @@
+{
+  "appid": "wx1d534fb9b3dfa6c3",
+  "projectname": "梅州嘉园户外",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": true,
+    "minified": true
+  }
+}
